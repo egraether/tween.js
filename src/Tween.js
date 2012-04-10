@@ -10,13 +10,17 @@
  * @author egraether / http://egraether.com/
  */
 
-var TWEEN = TWEEN || ( function () {
+var TWEEN = TWEEN || {
+
+	REVISION: '6'
+
+};
+
+TWEEN.Queue = function () {
 
 	var _tweens = [];
 
 	return {
-
-		REVISION: '6',
 
 		getAll: function () {
 
@@ -73,7 +77,7 @@ var TWEEN = TWEEN || ( function () {
 
 	};
 
-} )();
+};
 
 TWEEN.Tween = function ( object ) {
 
@@ -88,6 +92,7 @@ TWEEN.Tween = function ( object ) {
 	var _chainedTween = null;
 	var _onUpdateCallback = null;
 	var _onCompleteCallback = null;
+	var _queue = TWEEN;
 
 	this.to = function ( properties, duration ) {
 
@@ -103,9 +108,10 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.start = function ( time ) {
+	this.start = function ( queue, time ) {
 
-		TWEEN.add( this );
+		_queue = queue || TWEEN;
+		_queue.add( this );
 
 		_startTime = time !== undefined ? time : Date.now();
 		_startTime += _delayTime;
@@ -143,7 +149,7 @@ TWEEN.Tween = function ( object ) {
 
 	this.stop = function () {
 
-		TWEEN.remove( this );
+		_queue.remove( this );
 		return this;
 
 	};
@@ -236,7 +242,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _chainedTween !== null ) {
 
-				_chainedTween.start();
+				_chainedTween.start( _queue );
 
 			}
 
@@ -615,3 +621,5 @@ TWEEN.Interpolation = {
 	}
 
 };
+
+TWEEN.__proto__ = new TWEEN.Queue();
