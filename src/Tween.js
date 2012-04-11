@@ -10,7 +10,7 @@
  * @author egraether / http://egraether.com/
  */
 
-var TWEEN = TWEEN || {
+var TWEEN = {
 
 	REVISION: '6'
 
@@ -20,56 +20,52 @@ TWEEN.Queue = function () {
 
 	var _tweens = [];
 
-	return {
+	this.getAll = function () {
 
-		getAll: function () {
+		return _tweens;
 
-			return _tweens;
+	};
 
-		},
+	this.removeAll = function () {
 
-		removeAll: function () {
+		_tweens = [];
 
-			_tweens = [];
+	};
 
-		},
+	this.add = function ( tween ) {
 
-		add: function ( tween ) {
+		_tweens.push( tween );
 
-			_tweens.push( tween );
+	};
 
-		},
+	this.remove = function ( tween ) {
 
-		remove: function ( tween ) {
+		var i = _tweens.indexOf( tween );
 
-			var i = _tweens.indexOf( tween );
+		if ( i !== -1 ) {
 
-			if ( i !== -1 ) {
+			_tweens.splice( i, 1 );
+
+		}
+
+	};
+
+	this.update = function ( time ) {
+
+		var i = 0;
+		var num_tweens = _tweens.length;
+		var time = time !== undefined ? time : Date.now();
+
+		while ( i < num_tweens ) {
+
+			if ( _tweens[ i ].update( time ) ) {
+
+				i ++;
+
+			} else {
 
 				_tweens.splice( i, 1 );
-
-			}
-
-		},
-
-		update: function ( time ) {
-
-			var i = 0;
-			var num_tweens = _tweens.length;
-			var time = time !== undefined ? time : Date.now();
-
-			while ( i < num_tweens ) {
-
-				if ( _tweens[ i ].update( time ) ) {
-
-					i ++;
-
-				} else {
-
-					_tweens.splice( i, 1 );
-					num_tweens --;
-
-				}
+				num_tweens --;
 
 			}
 
@@ -108,9 +104,8 @@ TWEEN.Tween = function ( object ) {
 
 	};
 
-	this.start = function ( queue, time ) {
+	this.start = function ( time ) {
 
-		_queue = queue || TWEEN;
 		_queue.add( this );
 
 		_startTime = time !== undefined ? time : Date.now();
@@ -242,7 +237,7 @@ TWEEN.Tween = function ( object ) {
 
 			if ( _chainedTween !== null ) {
 
-				_chainedTween.start( _queue );
+				_chainedTween.start();
 
 			}
 
@@ -251,6 +246,12 @@ TWEEN.Tween = function ( object ) {
 		}
 
 		return true;
+
+	};
+
+	this.queue = function( queue ) {
+
+		_queue = queue;
 
 	};
 
@@ -622,4 +623,5 @@ TWEEN.Interpolation = {
 
 };
 
-TWEEN.__proto__ = new TWEEN.Queue();
+TWEEN.Queue.prototype = TWEEN;
+TWEEN = new TWEEN.Queue();
