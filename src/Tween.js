@@ -625,3 +625,4 @@ TWEEN.Interpolation = {
 
 TWEEN.Queue.prototype = TWEEN;
 TWEEN = new TWEEN.Queue();
+TWEEN.Queue.prototype = {};
